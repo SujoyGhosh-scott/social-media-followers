@@ -1,10 +1,15 @@
 const express = require("express");
 const puppeteer = require("puppeteer");
+require("dotenv").config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.status(200).send("Follwer Count server running");
+});
 
 app.post("/fetch-social-data", async (req, res) => {
   const body = req.body;
@@ -15,8 +20,18 @@ app.post("/fetch-social-data", async (req, res) => {
     body.instagram || "https://www.instagram.com/beebomco/?hl=en";
 
   const browser = await puppeteer.launch({
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
     headless: true,
     defaultViewport: null,
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
   });
 
   try {
@@ -115,5 +130,5 @@ async function fetchInstagramFollowers(browser, instagramURL) {
 }
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
