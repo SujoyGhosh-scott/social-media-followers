@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm ci
-RUN sudo apt-get install chromium-browser
+RUN apt-get install chromium-browser
 COPY . .
 
 CMD ["node", "index.js"]
