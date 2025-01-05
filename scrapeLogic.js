@@ -160,18 +160,23 @@ const countFollowers = async (req, res) => {
     body.instagram || "https://www.instagram.com/beebomco/?hl=en";
 
   try {
-    const [youtubeData, facebookData, instagramData] = await Promise.all([
+    // const [youtubeData, facebookData, instagramData] = await Promise.all([
+    //   fetchYouTubeSubscribers(browser, youtubeURL),
+    //   fetchFacebookFollowers(browser, facebookURL),
+    //   fetchInstagramFollowers(browser, instagramURL),
+    // ]);
+    const [youtubeData] = await Promise.all([
       fetchYouTubeSubscribers(browser, youtubeURL),
-      fetchFacebookFollowers(browser, facebookURL),
-      fetchInstagramFollowers(browser, instagramURL),
+      // fetchFacebookFollowers(browser, facebookURL),
+      // fetchInstagramFollowers(browser, instagramURL),
     ]);
 
     await browser.close();
 
     res.status(200).json({
       youtube: youtubeData,
-      facebook: facebookData,
-      instagram: instagramData,
+      // facebook: facebookData,
+      // instagram: instagramData,
     });
   } catch (error) {
     console.log("scraping error: ", error);
