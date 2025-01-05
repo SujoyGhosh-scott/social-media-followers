@@ -4,45 +4,47 @@ require("dotenv").config();
 const scrapeLogic = async (req, res) => {
   const date = new Date();
   console.log(">>scrape started ", date.toISOString());
-  const { youtube, facebook, instagram } = req.body;
-
-  const youtubeURL = youtube || "https://www.youtube.com/@beebomco/videos";
-  const facebookURL = facebook || "https://www.facebook.com/beebomco";
-  const instagramURL = instagram || "https://www.instagram.com/beebomco/?hl=en";
-
   const browser = await puppeteer.launch({
-    args: [
-      "--disable-setuid-sandbox",
-      "--no-sandbox",
-      "--single-process",
-      "--no-zygote",
-    ],
     headless: true,
     defaultViewport: null,
     executablePath:
       process.env.NODE_ENV === "production"
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        ? "/usr/bin/google-chrome"
         : puppeteer.executablePath(),
+    args: ["--no-sandbox"],
   });
 
   try {
-    const [youtubeData, facebookData, instagramData] = await Promise.all([
-      fetchYouTubeSubscribers(browser, youtubeURL),
-      fetchFacebookFollowers(browser, facebookURL),
-      fetchInstagramFollowers(browser, instagramURL),
-    ]);
+    const page = await browser.newPage();
 
-    await browser.close();
+    // Navigate the page to a URL.
+    await page.goto("https://developer.chrome.com/");
 
-    res.status(200).json({
-      youtube: youtubeData,
-      facebook: facebookData,
-      instagram: instagramData,
-    });
+    // Set screen size.
+    await page.setViewport({ width: 1080, height: 1024 });
+
+    // Type into search box.
+    await page
+      .locator(".devsite-search-field")
+      .fill("automate beyond recorder");
+
+    // Wait and click on first result.
+    await page.locator(".devsite-result-item-link").click();
+
+    // Locate the full title with a unique string.
+    const textSelector = await page
+      .locator("text/Customize and automate")
+      .waitHandle();
+    const fullTitle = await textSelector?.evaluate((el) => el.textContent);
+
+    // Print the full title.
+    console.log("Full title", fullTitle.trim());
+    res.status(200).send(fullTitle.trim());
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.log("scraping error: ", error);
+    res.status(500).send(error);
+  } finally {
     await browser.close();
-    res.status(500).json({ error: error.message });
   }
 };
 
