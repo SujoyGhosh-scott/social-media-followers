@@ -57,6 +57,7 @@ async function fetchYouTubeSubscribers(browser, youtubeURL) {
     // console.log("Viewport set to: ", viewport);
     await page.goto(youtubeURL, {
       waitUntil: "networkidle2",
+      timeout: 120000,
     });
 
     await page.waitForSelector(
@@ -150,6 +151,7 @@ const countFollowers = async (req, res) => {
       "--no-sandbox",
       "--single-process",
       "--no-zygote",
+      "--disable-dev-shm-usage",
     ],
   });
   const body = req.body;
