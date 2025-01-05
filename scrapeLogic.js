@@ -52,9 +52,9 @@ async function fetchYouTubeSubscribers(browser, youtubeURL) {
   try {
     const page = await browser.newPage();
     // Set viewport to desktop size
-    const viewport = { width: 1920, height: 1080 };
-    await page.setViewport(viewport);
-    console.log("Viewport set to: ", viewport);
+    // const viewport = { width: 1920, height: 1080 };
+    // await page.setViewport(viewport);
+    // console.log("Viewport set to: ", viewport);
     await page.goto(youtubeURL, {
       waitUntil: "networkidle2",
     });
@@ -84,9 +84,9 @@ async function fetchFacebookFollowers(browser, facebookURL) {
   try {
     const page = await browser.newPage();
     // Set viewport to desktop size
-    const viewport = { width: 1920, height: 1080 };
-    await page.setViewport(viewport);
-    console.log("Viewport set to: ", viewport);
+    // const viewport = { width: 1920, height: 1080 };
+    // await page.setViewport(viewport);
+    // console.log("Viewport set to: ", viewport);
     await page.goto(facebookURL, {
       waitUntil: "networkidle2",
     });
@@ -112,9 +112,9 @@ async function fetchInstagramFollowers(browser, instagramURL) {
   try {
     const page = await browser.newPage();
     // Set viewport to desktop size
-    const viewport = { width: 1920, height: 1080 };
-    await page.setViewport(viewport);
-    console.log("Viewport set to: ", viewport);
+    // const viewport = { width: 1920, height: 1080 };
+    // await page.setViewport(viewport);
+    // console.log("Viewport set to: ", viewport);
 
     await page.goto(instagramURL, {
       waitUntil: "networkidle2",
@@ -135,4 +135,50 @@ async function fetchInstagramFollowers(browser, instagramURL) {
   }
 }
 
-module.exports = { scrapeLogic };
+const countFollowers = async (req, res) => {
+  const date = new Date();
+  console.log(">>count started ", date.toISOString());
+  const browser = await puppeteer.launch({
+    headless: true,
+    defaultViewport: null,
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? "/usr/bin/google-chrome"
+        : puppeteer.executablePath(),
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+  });
+  const body = req.body;
+
+  const youtubeURL = body.youtube || "https://www.youtube.com/@beebomco/videos";
+  const facebookURL = body.facebook || "https://www.facebook.com/beebomco";
+  const instagramURL =
+    body.instagram || "https://www.instagram.com/beebomco/?hl=en";
+
+  try {
+    const [youtubeData, facebookData, instagramData] = await Promise.all([
+      fetchYouTubeSubscribers(browser, youtubeURL),
+      fetchFacebookFollowers(browser, facebookURL),
+      fetchInstagramFollowers(browser, instagramURL),
+    ]);
+
+    await browser.close();
+
+    res.status(200).json({
+      youtube: youtubeData,
+      facebook: facebookData,
+      instagram: instagramData,
+    });
+  } catch (error) {
+    console.log("scraping error: ", error);
+    res.status(500).send(error);
+  } finally {
+    await browser.close();
+  }
+};
+
+module.exports = { scrapeLogic, countFollowers };

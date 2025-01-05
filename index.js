@@ -1,5 +1,5 @@
 const express = require("express");
-const { scrapeLogic } = require("./scrapeLogic");
+const { scrapeLogic, countFollowers } = require("./scrapeLogic");
 const app = express();
 app.use(express.json());
 
@@ -11,6 +11,10 @@ app.get("/", (req, res) => {
 
 app.post("/scrape", (req, res) => {
   scrapeLogic(req, res);
+});
+
+app.post("/count", (req, res) => {
+  countFollowers(req, res);
 });
 
 app.listen(PORT, () => {
