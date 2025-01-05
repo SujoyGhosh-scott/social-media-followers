@@ -1,10 +1,21 @@
 // import puppeteer from "puppeteer";
 const puppeteer = require("puppeteer");
+require("dotenv").config();
 
 const scrapeLogic = async (req, res) => {
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch({
-    executablePath: "google-chrome-stable",
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+    // executablePath: "google-chrome-stable",
   });
 
   try {
