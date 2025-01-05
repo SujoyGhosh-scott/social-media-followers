@@ -49,6 +49,10 @@ const scrapeLogic = async (req, res) => {
 async function fetchYouTubeSubscribers(browser, youtubeURL) {
   try {
     const page = await browser.newPage();
+    // Set viewport to desktop size
+    const viewport = { width: 1920, height: 1080 };
+    await page.setViewport(viewport);
+    console.log("Viewport set to: ", viewport);
     await page.goto(youtubeURL, {
       waitUntil: "networkidle2",
     });
@@ -77,6 +81,10 @@ async function fetchYouTubeSubscribers(browser, youtubeURL) {
 async function fetchFacebookFollowers(browser, facebookURL) {
   try {
     const page = await browser.newPage();
+    // Set viewport to desktop size
+    const viewport = { width: 1920, height: 1080 };
+    await page.setViewport(viewport);
+    console.log("Viewport set to: ", viewport);
     await page.goto(facebookURL, {
       waitUntil: "networkidle2",
     });
@@ -101,6 +109,11 @@ async function fetchFacebookFollowers(browser, facebookURL) {
 async function fetchInstagramFollowers(browser, instagramURL) {
   try {
     const page = await browser.newPage();
+    // Set viewport to desktop size
+    const viewport = { width: 1920, height: 1080 };
+    await page.setViewport(viewport);
+    console.log("Viewport set to: ", viewport);
+
     await page.goto(instagramURL, {
       waitUntil: "networkidle2",
     });
